@@ -2,10 +2,10 @@ package com.rolliedev.service.entity;
 
 import com.rolliedev.service.entity.enums.LessonMaterialType;
 import com.rolliedev.service.entity.enums.Role;
-import com.rolliedev.service.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.Test;
+import util.HibernateTestUtil;
 
 import java.util.List;
 
@@ -15,16 +15,16 @@ public class HibernateEntityPersistenceTest {
 
     @Test
     void shouldPersistAndRetrieveUserById() {
-        try (SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
+        try (SessionFactory sessionFactory = HibernateTestUtil.buildSessionFactory();
              Session session = sessionFactory.openSession()) {
             session.beginTransaction();
 
-            User user = buildUser();
-            session.persist(user);
+            Instructor instructor = buildInstructor();
+            session.persist(instructor);
             session.flush();
             session.clear();
 
-            User userFromDb = session.find(User.class, user.getId());
+            User userFromDb = session.find(Instructor.class, instructor.getId());
 
             assertThat(userFromDb).isNotNull();
             assertThat(userFromDb.getEmail()).isEqualTo("ivanov@gmail.com");
@@ -35,13 +35,14 @@ public class HibernateEntityPersistenceTest {
 
     @Test
     void shouldPersistAndRetrieveCourseWithInstructor() {
-        try (SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
+        try (SessionFactory sessionFactory = HibernateTestUtil.buildSessionFactory();
              Session session = sessionFactory.openSession()) {
             session.beginTransaction();
 
-            User user = buildUser();
-            session.persist(user);
-            Course course = buildCourse(user);
+            Instructor instructor = buildInstructor();
+            session.persist(instructor);
+            Course course = buildCourse();
+            instructor.addCourse(course);
             session.persist(course);
             session.flush();
             session.clear();
@@ -50,7 +51,7 @@ public class HibernateEntityPersistenceTest {
 
             assertThat(courseFromDb).isNotNull();
             assertThat(courseFromDb.getTitle()).isEqualTo("Java Basics");
-            assertThat(courseFromDb.getInstructorId()).isEqualTo(user.getId());
+            assertThat(courseFromDb.getInstructor().getId()).isEqualTo(instructor.getId());
 
             session.getTransaction().rollback();
         }
@@ -58,20 +59,21 @@ public class HibernateEntityPersistenceTest {
 
     @Test
     void shouldPersistAndRetrieveLessonForCourse() {
-        try (SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
+        try (SessionFactory sessionFactory = HibernateTestUtil.buildSessionFactory();
              Session session = sessionFactory.openSession()) {
             session.beginTransaction();
 
-            User user = buildUser();
-            session.persist(user);
-            Course course = buildCourse(user);
+            Instructor instructor = buildInstructor();
+            session.persist(instructor);
+            Course course = buildCourse();
+            instructor.addCourse(course);
             session.persist(course);
 
             Lesson lesson = Lesson.builder()
                     .title("Primitive data types")
                     .order(1)
-                    .courseId(course.getId())
                     .build();
+            course.addLesson(lesson);
             session.persist(lesson);
             session.flush();
             session.clear();
@@ -80,7 +82,7 @@ public class HibernateEntityPersistenceTest {
 
             assertThat(lessonFromDb).isNotNull();
             assertThat(lessonFromDb.getTitle()).isEqualTo("Primitive data types");
-            assertThat(lessonFromDb.getCourseId()).isEqualTo(course.getId());
+            assertThat(lessonFromDb.getCourse().getId()).isEqualTo(course.getId());
 
             session.getTransaction().rollback();
         }
@@ -88,28 +90,29 @@ public class HibernateEntityPersistenceTest {
 
     @Test
     void shouldPersistAndRetrieveLessonMaterialForLesson() {
-        try (SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
+        try (SessionFactory sessionFactory = HibernateTestUtil.buildSessionFactory();
              Session session = sessionFactory.openSession()) {
             session.beginTransaction();
 
-            User user = buildUser();
-            session.persist(user);
-            Course course = buildCourse(user);
+            Instructor instructor = buildInstructor();
+            session.persist(instructor);
+            Course course = buildCourse();
+            instructor.addCourse(course);
             session.persist(course);
 
             Lesson lesson = Lesson.builder()
                     .title("Primitive data types")
                     .order(1)
-                    .courseId(course.getId())
                     .build();
+            course.addLesson(lesson);
             session.persist(lesson);
 
             LessonMaterial lessonMaterial = LessonMaterial.builder()
                     .contentUrl("fake_url")
                     .type(LessonMaterialType.IMAGE)
                     .order(1)
-                    .lessonId(lesson.getId())
                     .build();
+            lesson.addLessonMaterial(lessonMaterial);
             session.persist(lessonMaterial);
 
             session.flush();
@@ -120,7 +123,7 @@ public class HibernateEntityPersistenceTest {
             assertThat(lessonMaterialFromDb).isNotNull();
             assertThat(lessonMaterialFromDb.getOrder()).isEqualTo(1);
             assertThat(lessonMaterialFromDb.getType()).isEqualTo(LessonMaterialType.IMAGE);
-            assertThat(lessonMaterialFromDb.getLessonId()).isEqualTo(lesson.getId());
+            assertThat(lessonMaterialFromDb.getLesson().getId()).isEqualTo(lesson.getId());
 
             session.getTransaction().rollback();
         }
@@ -128,27 +131,28 @@ public class HibernateEntityPersistenceTest {
 
     @Test
     void shouldPersistAndRetrieveQuestionForQuiz() {
-        try (SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
+        try (SessionFactory sessionFactory = HibernateTestUtil.buildSessionFactory();
              Session session = sessionFactory.openSession()) {
             session.beginTransaction();
 
-            User user = buildUser();
-            session.persist(user);
-            Course course = buildCourse(user);
+            Instructor instructor = buildInstructor();
+            session.persist(instructor);
+            Course course = buildCourse();
+            instructor.addCourse(course);
             session.persist(course);
 
             Quiz quiz = Quiz.builder()
                     .title("Primitive data types quiz")
-                    .courseId(course.getId())
                     .build();
+            course.addQuiz(quiz);
             session.persist(quiz);
 
             Question question = Question.builder()
                     .text("How many primitive data types are there in Java?")
                     .options(List.of("seven", "eight", "nine", "six"))
                     .answer("eight")
-                    .quizId(quiz.getId())
                     .build();
+            quiz.addQuestion(question);
             session.persist(question);
 
             session.flush();
@@ -165,8 +169,8 @@ public class HibernateEntityPersistenceTest {
         }
     }
 
-    private User buildUser() {
-        return User.builder()
+    private Instructor buildInstructor() {
+        return Instructor.builder()
                 .firstName("Ivan")
                 .lastName("Ivanov")
                 .email("ivanov@gmail.com")
@@ -175,10 +179,9 @@ public class HibernateEntityPersistenceTest {
                 .build();
     }
 
-    private Course buildCourse(User instructor) {
+    private Course buildCourse() {
         return Course.builder()
                 .title("Java Basics")
-                .instructorId(instructor.getId())
                 .build();
     }
 }

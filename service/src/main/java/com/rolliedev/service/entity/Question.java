@@ -2,9 +2,12 @@ package com.rolliedev.service.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,8 +18,8 @@ import org.hibernate.type.SqlTypes;
 import java.util.List;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @Entity
 public class Question {
@@ -24,12 +27,18 @@ public class Question {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String text;
 
-    @Column(nullable = false, columnDefinition = "JSON")
+    @Column(columnDefinition = "JSON", nullable = false)
     @JdbcTypeCode(SqlTypes.JSON)
     private List<String> options;
 
+    @Column(nullable = false)
     private String answer;
-    private Long quizId;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "quiz_id")
+    private Quiz quiz;
 }
