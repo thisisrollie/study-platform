@@ -27,7 +27,7 @@ import java.util.List;
 @ToString(exclude = {"questions", "quizAttempts"})
 @Builder
 @Entity
-public class Quiz {
+public class Quiz implements BaseEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

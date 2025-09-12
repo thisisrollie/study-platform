@@ -2,9 +2,12 @@ package util;
 
 import com.rolliedev.service.util.HibernateUtil;
 import lombok.experimental.UtilityClass;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.testcontainers.containers.PostgreSQLContainer;
+
+import java.lang.reflect.Proxy;
 
 @UtilityClass
 public class HibernateTestUtil {
@@ -23,5 +26,10 @@ public class HibernateTestUtil {
         configuration.configure();
 
         return configuration.buildSessionFactory();
+    }
+
+    public static Session buildSessionProxy(SessionFactory sessionFactory) {
+        return (Session) Proxy.newProxyInstance(SessionFactory.class.getClassLoader(), new Class[]{Session.class},
+                (proxy, method, args) -> method.invoke(sessionFactory.getCurrentSession(), args));
     }
 }

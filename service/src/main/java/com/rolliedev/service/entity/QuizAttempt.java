@@ -20,7 +20,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 @Entity
-public class QuizAttempt {
+public class QuizAttempt implements BaseEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

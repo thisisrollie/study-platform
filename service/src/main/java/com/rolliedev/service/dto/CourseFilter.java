@@ -6,6 +6,6 @@ import lombok.Value;
 @Value
 @Builder
 public class CourseFilter {
-    String title;
-    InstructorFilter instructor;
+    @Builder.Default
+    InstructorFilter instructor = InstructorFilter.builder().build();
 }

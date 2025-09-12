@@ -28,7 +28,7 @@ import java.util.List;
 @ToString(exclude = "lessonMaterials")
 @Builder
 @Entity
-public class Lesson implements Comparable<Lesson> {
+public class Lesson implements BaseEntity<Long>, Comparable<Lesson> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
