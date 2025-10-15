@@ -22,7 +22,7 @@ import java.time.Instant;
 @EqualsAndHashCode(of = {"student", "course"})
 @Builder
 @Entity
-public class Enrollment {
+public class Enrollment implements BaseEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

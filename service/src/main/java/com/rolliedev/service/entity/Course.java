@@ -30,7 +30,7 @@ import java.util.Set;
 @ToString(exclude = {"enrollments", "lessons", "quizzes"})
 @Builder
 @Entity
-public class Course {
+public class Course implements BaseEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

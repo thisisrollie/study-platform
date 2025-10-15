@@ -1,12 +1,9 @@
 package com.rolliedev.service.dao;
 
 import com.querydsl.jpa.impl.JPAQuery;
-import com.rolliedev.service.dto.QuestionFilter;
 import com.rolliedev.service.entity.Course;
 import com.rolliedev.service.entity.Question;
 import com.rolliedev.service.entity.Quiz;
-import lombok.Cleanup;
-import org.hibernate.Session;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -15,27 +12,21 @@ import static com.rolliedev.service.entity.QCourse.course;
 import static com.rolliedev.service.entity.QQuiz.quiz;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class QuestionDaoTest extends AbstractDaoTest {
+class QuestionRepositoryTest extends AbstractDaoTest {
 
-    private final QuestionDao questionDao = QuestionDao.getInstance();
+    private final QuestionRepository questionRepository = new QuestionRepository(entityManager);
 
     @Test
-    void findAllByQuiz() {
-        @Cleanup Session session = sessionFactory.openSession();
-        session.beginTransaction();
-
-        Course dbCourse = findCourseByTitle(session, "Introduction To Databases");
+    void findAllByQuizId() {
+        // given
+        Course dbCourse = findCourseByTitle("Introduction To Databases");
         assertThat(dbCourse).isNotNull();
 
-        Quiz dbQuiz = findQuizByCourseAndTitle(session, dbCourse, "Database Fundamentals");
+        Quiz dbQuiz = findQuizByCourseAndTitle(dbCourse, "Database Fundamentals");
         assertThat(dbQuiz).isNotNull();
-
-        QuestionFilter filter = QuestionFilter.builder()
-                .quizId(dbQuiz.getId())
-                .build();
-
-        List<Question> results = questionDao.findAllByQuiz(session, filter);
-
+        // when
+        List<Question> results = questionRepository.findAllByQuizId(dbQuiz.getId());
+        // then
         assertThat(results).hasSize(3);
         List<String> questionTexts = results.stream().map(Question::getText).toList();
         assertThat(questionTexts).containsExactlyInAnyOrder(
@@ -43,20 +34,18 @@ class QuestionDaoTest extends AbstractDaoTest {
                 "What is the difference between a database and a spreadsheet?",
                 "What is a DBMS?"
         );
-
-        session.getTransaction().commit();
     }
 
-    private Course findCourseByTitle(Session session, String title) {
-        return new JPAQuery<Course>(session)
+    private Course findCourseByTitle(String title) {
+        return new JPAQuery<Course>(entityManager)
                 .select(course)
                 .from(course)
                 .where(course.title.eq(title))
                 .fetchOne();
     }
 
-    private Quiz findQuizByCourseAndTitle(Session session, Course course, String quizTitle) {
-        return new JPAQuery<Quiz>(session)
+    private Quiz findQuizByCourseAndTitle(Course course, String quizTitle) {
+        return new JPAQuery<Quiz>(entityManager)
                 .select(quiz)
                 .from(quiz)
                 .where(

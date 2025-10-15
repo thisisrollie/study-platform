@@ -28,7 +28,7 @@ import static jakarta.persistence.InheritanceType.SINGLE_TABLE;
 @Table(name = "users")
 @Inheritance(strategy = SINGLE_TABLE)
 @DiscriminatorColumn(name = "role")
-public abstract class User {
+public abstract class User implements BaseEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,4 +49,8 @@ public abstract class User {
     @Column(nullable = false, insertable = false, updatable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
 }

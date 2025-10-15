@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(of = {"lesson", "order"})
 @Builder
 @Entity
-public class LessonMaterial implements Comparable<LessonMaterial> {
+public class LessonMaterial implements BaseEntity<Long>, Comparable<LessonMaterial> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
