@@ -279,7 +279,7 @@ public class TestDataImporter {
         Instructor instructor = Instructor.builder()
                 .firstName(firstName)
                 .lastName(lastName)
-                .email((firstName + lastName).toLowerCase() + "gmail.com")
+                .email((firstName + lastName).toLowerCase() + "@gmail.com")
                 .password("abc")
                 .role(Role.INSTRUCTOR)
                 .build();

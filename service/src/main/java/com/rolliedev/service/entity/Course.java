@@ -9,6 +9,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import lombok.AllArgsConstructor;
@@ -23,6 +25,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@NamedEntityGraph(
+        name = "WithInstructor",
+        attributeNodes = {
+                @NamedAttributeNode("instructor")
+        }
+)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -49,14 +57,14 @@ public class Course implements BaseEntity<Long> {
      * Enrollments of students in this course
      */
     @Builder.Default
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "course", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private Set<Enrollment> enrollments = new HashSet<>();
 
     /**
      * Lessons that belong to this course
      */
     @Builder.Default
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "course", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     @OrderBy("order asc")
     private List<Lesson> lessons = new ArrayList<>();
 
@@ -64,7 +72,7 @@ public class Course implements BaseEntity<Long> {
      * Quiz entities under this course
      */
     @Builder.Default
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "course", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private List<Quiz> quizzes = new ArrayList<>();
 
     public void addEnrollment(Enrollment enrollment) {
